@@ -1,0 +1,17 @@
+
+ <!-- action usual -->
+ <!-- table app_alarmclock search -->
+ [#if VIEW_MODE="search_app_alarmclock" || VIEW_MODE=""#]
+  [#inc app_alarmclock_search_admin.html#]
+ [#endif VIEW_MODE#]
+ <!-- / table app_alarmclock search -->
+ <!-- table app_alarmclock edit -->
+ [#if VIEW_MODE="edit_app_alarmclock"#]
+   [#inc app_alarmclock_edit.html#]
+ [#endif VIEW_MODE#]
+ <!-- / table app_alarmclock edit -->
+ <!-- table app_alarmclock view --> 
+ [#if VIEW_MODE="view_app_alarmclock"#]
+   [#inc app_alarmclock_view.html#]
+ [#endif VIEW_MODE#]
+ <!-- / table app_alarmclock view -->
