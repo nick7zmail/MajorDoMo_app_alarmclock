@@ -167,12 +167,17 @@ function usual(&$out) {
  }
  function propertySetHandle($object, $property, $value) {
    $table='app_alarmclock';
-   $properties=SQLSelect("SELECT ID FROM $table WHERE LINKED_OBJECT LIKE '".DBSafe($object)."' AND LINKED_PROPERTY LIKE '".DBSafe($property)."'");
+   $properties=SQLSelect("SELECT * FROM $table WHERE LINKED_OBJECT LIKE '".DBSafe($object)."'");
     DebMes("AlarmClock: изменено свойство будильника $object.$property");
    $total=count($properties);
    if ($total) {
     for($i=0;$i<$total;$i++) {
      //to-do
+	 if (gg($properties[$i]['LINKED_OBJECT'].'.'.'AlarmOn') == 1 ) {
+		sg($properties[$i]['LINKED_OBJECT'].'.'.'value', $properties[$i]['CUSTOM_ON']);
+	 } else {
+		sg($properties[$i]['LINKED_OBJECT'].'.'.'value', $properties[$i]['CUSTOM_OFF']);
+	 }
     }
    }
  }
