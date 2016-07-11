@@ -193,6 +193,9 @@ function usual(&$out) {
 				if (gg($rec['LINKED_OBJECT'].'.AlarmOn') == 1) {
 					DebMes("AlarmClock: сработал будильник ".$rec['TITLE']);
 					cm($rec['LINKED_OBJECT'].'.'.$rec['LINKED_METHOD']);
+					if ($rec['ONCE'] == 1) {
+						sg($rec['LINKED_OBJECT'].'.AlarmOn', 0);
+					}
 				}
 			}
 		}

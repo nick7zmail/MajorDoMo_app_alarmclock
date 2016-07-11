@@ -110,7 +110,7 @@
  <label class="col-lg-3 control-label"[#if ERR_ONCE#] style="color:red;font-weight:bold"[#endif#]>
  Одноразовый:
  </label>
- <div class="col-lg-4"><input type="text" class="form-control" name="once" value="[#ONCE#]" id="once"></div>
+ <div class="col-lg-4"><input type="checkbox" class="form-control" name="once" value="[#ONCE#]" id="once" [#if ONCE='1'#]checked[#endif#]></div>
 </div>
 <!-- LINKED_OBJECT (varchar) -->
 <div class="form-group">

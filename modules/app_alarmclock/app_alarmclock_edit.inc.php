@@ -49,7 +49,7 @@
    $rec['CUSTOM_OFF']=$custom_off;
   //updating 'custom_off' (varchar)
    global $once;
-   $rec['ONCE']=$once;
+   if(isset($once)) $rec['ONCE']=1; else $rec['ONCE']=0;
   //updating 'LANG_LINKED_OBJECT' (varchar)
    global $linked_object;
    $rec['LINKED_OBJECT']=$linked_object;
