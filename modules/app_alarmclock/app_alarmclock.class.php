@@ -174,10 +174,15 @@ function usual(&$out) {
     for($i=0;$i<$total;$i++) {
      //to-do
 	 if (gg($properties[$i]['LINKED_OBJECT'].'.'.'AlarmOn') == 1 ) {
-		sg($properties[$i]['LINKED_OBJECT'].'.'.'value', $properties[$i]['CUSTOM_ON']);
+		if (stripos($properties[$i]['CUSTOM_ON'], '%TIME%') !== false) {
+			$val=str_replace('%TIME%', gg($properties[$i]['LINKED_OBJECT'].'.'.'AlarmTime'), $properties[$i]['CUSTOM_ON']);
+		} else {$val=$properties[$i]['CUSTOM_ON'];}	
 	 } else {
-		sg($properties[$i]['LINKED_OBJECT'].'.'.'value', $properties[$i]['CUSTOM_OFF']);
+		if (stripos($properties[$i]['CUSTOM_OFF'], '%TIME%') !== false) {
+			$val=str_replace('%TIME%', gg($properties[$i]['LINKED_OBJECT'].'.'.'AlarmTime'), $properties[$i]['CUSTOM_OFF']);
+		} else {$val=$properties[$i]['CUSTOM_OFF'];}
 	 }
+	 sg($properties[$i]['LINKED_OBJECT'].'.'.'value', $val);
     }
    }
  }
