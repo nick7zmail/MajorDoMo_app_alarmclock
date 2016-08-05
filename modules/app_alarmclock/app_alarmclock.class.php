@@ -197,7 +197,13 @@ function usual(&$out) {
 			if ($rec[$dow]==1) {
 				if (gg($rec['LINKED_OBJECT'].'.AlarmOn') == 1) {
 					DebMes("AlarmClock: сработал будильник ".$rec['TITLE']);
-					cm($rec['LINKED_OBJECT'].'.'.$rec['LINKED_METHOD']);
+					if ($rec['METHOD'] == 'sound') {
+						PlaySound($rec['CODE']);
+					} elseif ($rec['METHOD'] == 'method') {
+						cm($rec['LINKED_OBJECT'].'.'.$rec['LINKED_METHOD']);
+					} else {
+						runScript($rec['CODE']);
+					}
 					if ($rec['ONCE'] == 1) {
 						sg($rec['LINKED_OBJECT'].'.AlarmOn', 0);
 					}
@@ -252,8 +258,9 @@ app_alarmclock -
  app_alarmclock: CUSTOM_OFF varchar(255) NOT NULL DEFAULT ''
  app_alarmclock: ONCE varchar(100) NOT NULL DEFAULT ''
  app_alarmclock: LINKED_OBJECT varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: LINKED_PROPERTY varchar(100) NOT NULL DEFAULT ''
  app_alarmclock: LINKED_METHOD varchar(100) NOT NULL DEFAULT ''
+ app_alarmclock: METHOD varchar(100) NOT NULL DEFAULT ''
+ app_alarmclock: CODE varchar(100) NOT NULL DEFAULT ''
 EOD;
   parent::dbInstall($data);
  }

@@ -17,9 +17,17 @@
 <div class="form-group">
  <label class="col-lg-3 control-label"[#if ERR_TITLE#] style="color:red;font-weight:bold"[#endif#]>
  <#LANG_TITLE#>:
- (*)
+ (*)<#LANG_HCB#>title<#LANG_HCE#>
  </label>
  <div class="col-lg-4"><input type="text" class="form-control" name="title" value="[#TITLE#]" id="title"></div>
+</div>
+<!-- LINKED_OBJECT (varchar) -->
+<div class="form-group">
+ <label class="col-lg-3 control-label"[#if ERR_LINKED_OBJECT#] style="color:red;font-weight:bold"[#endif#]>
+ <#LANG_LINKED_OBJECT#>:
+ (*)<#LANG_HCB#>linked_object<#LANG_HCE#>
+ </label>
+ <div class="col-lg-4"><input type="text" class="form-control" name="linked_object" value="[#LINKED_OBJECT#]" id="linked_object"></div>
 </div>
 <!-- ALARMON (varchar) -->
 <div class="form-group">
@@ -113,28 +121,36 @@
  </label>
  <div class="col-lg-4"><input type="checkbox" class="form-control" name="once" value="[#ONCE#]" id="once" [#if ONCE='1'#]checked[#endif#]></div>
 </div>
-<!-- LINKED_OBJECT (varchar) -->
+<!-- Method (varchar) -->
 <div class="form-group">
- <label class="col-lg-3 control-label"[#if ERR_LINKED_OBJECT#] style="color:red;font-weight:bold"[#endif#]>
- <#LANG_LINKED_OBJECT#>:
+ <label class="col-lg-3 control-label"[#if ERR_METHOD#] style="color:red;font-weight:bold"[#endif#]>
+ Способ оповещения:
  </label>
- <div class="col-lg-4"><input type="text" class="form-control" name="linked_object" value="[#LINKED_OBJECT#]" id="linked_object"></div>
+ <div class="col-lg-4">
+		<input type="radio" name="method" value="sound"[#if METHOD=="sound"#] checked[#endif#]><#LANG_MODULE_SOUNDFILES#><br>
+		<input type="radio" name="method" value="method"[#if METHOD=="method"#] checked[#endif#]><#LANG_CALL_METHOD#><br>
+		<input type="radio" name="method" value="script"[#if METHOD=="script"#] checked[#endif#]><#LANG_RUN_SCRIPT#><br>
+ </div>
 </div>
-<!-- LINKED_PROPERTY (varchar)
+
+[#if METHOD=="sound" || METHOD=="script"#]
 <div class="form-group">
- <label class="col-lg-3 control-label"[#if ERR_LINKED_PROPERTY#] style="color:red;font-weight:bold"[#endif#]>
- <#LANG_LINKED_PROPERTY#>:
- </label>
- <div class="col-lg-4"><input type="text" class="form-control" name="linked_property" value="[#LINKED_PROPERTY#]" id="linked_property"></div>
-</div> -->
+        <label class="col-lg-4 control-label" for="inputTitle">[#VAL#]</label>
+        <div class="col-lg-5">
+		<select name="code" class="form-control" >
+  <option value=""><#LANG_SELECT#>
+  [#begin SOUNDFILES#]<option value="[#NAME#]"[#if SELECTED#] selected[#endif#]>[#NAME#][#end SOUNDFILES#]
+ </select></div></div>[#endif#]
+
 <!-- LINKED_METHOD (varchar) -->
+[#if METHOD=="method"#]
 <div class="form-group">
  <label class="col-lg-3 control-label"[#if ERR_LINKED_METHOD#] style="color:red;font-weight:bold"[#endif#]>
  <#LANG_METHOD#> (при срабатывании):
  </label>
  <div class="col-lg-4"><input type="text" class="form-control" name="linked_method" value="[#LINKED_METHOD#]" id="linked_method"></div>
-</div>
-[#module name="linkedobject" object_field="linked_object" property_field="linked_property" method_field="linked_method"#]
+</div>[#endif#]
+[#module name="linkedobject" object_field="linked_object" method_field="linked_method"#]
 <div class="form-group">
         <div class="col-lg-offset-3 col-lg-4">
  [#if ID!=""#]

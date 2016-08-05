@@ -9,6 +9,37 @@
   $rec=SQLSelectOne("SELECT * FROM $table_name WHERE ID='$id'");
   $out['ALARMTIME']=gg($rec['LINKED_OBJECT'].'.'.'AlarmTime');
   $out['ALARMON']=gg($rec['LINKED_OBJECT'].'.'.'AlarmOn');
+  
+if ($rec['METHOD'] == 'sound'){
+	  $soundfiles=array();
+	  $dir=ROOT.'sounds';
+	  $handle = opendir( $dir );
+	 while ( false !== $thing = readdir( $handle ) ) { 
+	  if( $thing == '.' || $thing == '..' ) continue;
+	  if (preg_match('/(.+?)\.mp3$/', $thing, $m))  {
+	   $soundfiles[]=array('NAME'=>$m[1]);
+	  }
+	 }
+	 $soundfiles_total=count($soundfiles);
+	  for($i=0;$i<$soundfiles_total;$i++) {
+	   if ($rec['CODE']==$soundfiles[$i]['NAME']) $soundfiles[$i]['SELECTED']=1;
+	  }
+	  closedir( $handle );
+	  $out['SOUNDFILES']=$soundfiles;
+	  $out['VAL']='Выберите звуковой файл:';
+ }
+ 
+if ($rec['METHOD'] == 'script'){ 
+	$scripts=SQLSelect("SELECT TITLE FROM scripts");
+	$soundfiles_total=count($scripts);
+	  for($i=0;$i<$soundfiles_total;$i++) {
+	   $soundfiles[$i]['NAME'] = $scripts[$i]['TITLE'];
+	   if ($rec['CODE']==$soundfiles[$i]['NAME']) $soundfiles[$i]['SELECTED']=1;
+	  }
+	 $out['SOUNDFILES']=$soundfiles;
+	 $out['VAL']='Выберите сценарий:';
+ }
+ 
   if ($this->mode=='update') {
    $ok=1;
   //updating 'LANG_TITLE' (varchar, required)
@@ -57,16 +88,21 @@
     $out['ERR_LINKED_OBJECT']=1;
     $ok=0;
    }
-  //updating 'LANG_LINKED_PROPERTY' (varchar)
-   global $linked_property;
-   $rec['LINKED_PROPERTY']=$linked_property;
+  //
+   global $method;
+   $rec['METHOD']=$method;  
+   if (IsSet($this->code)) {
+    $rec['CODE']=$this->code;
+   } else {
+   global $code;
+   $rec['CODE']=$code;
+   }   
   //updating LANG_METHOD (varchar)
    global $linked_method;
    $rec['LINKED_METHOD']=$linked_method;
   //updating 'AlarmOn' (varchar)
    global $alarmon;
    if(isset($alarmon)) sg($rec['LINKED_OBJECT'].'.'.'AlarmOn', 1); else sg($rec['LINKED_OBJECT'].'.'.'AlarmOn', 0);
-   //sg($rec['LINKED_OBJECT'].'.'.'AlarmOn', $alarmon);
   //updating 'AlarmTime' (varchar)
    global $alarmtime;
    sg($rec['LINKED_OBJECT'].'.'.'AlarmTime', $alarmtime);
