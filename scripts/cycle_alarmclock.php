@@ -12,7 +12,6 @@ set_time_limit(0);
 $db = new mysql(DB_HOST, '', DB_USER, DB_PASSWORD, DB_NAME);
 
 include_once("./load_settings.php");
-setGlobal((str_replace('.php', '', basename(__FILE__))) . 'Run', time(), 1);
 
 $old_minute = date('i');
 $old_hour = date('h');
