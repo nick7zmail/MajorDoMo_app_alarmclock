@@ -19,13 +19,20 @@
   $sortby_app_alarmclock="ID DESC";
   $out['SORTBY']=$sortby_app_alarmclock;
   // SEARCH RESULTS
-  $res=SQLSelect("SELECT * FROM app_alarmclock WHERE $qry ORDER BY ".$sortby_app_alarmclock);
-  if ($res[0]['ID']) {
+  $res=getObjectsByClass('AlarmClock');
+  $total=count($res);
+  if ($total) {
    //paging($res, 100, $out); // search result paging
-   $total=count($res);
    for($i=0;$i<$total;$i++) {
-	$res[$i]['ALARMTIME']=gg($res[$i]['LINKED_OBJECT'].'.'.'AlarmTime');
-	$res[$i]['ALARMON']=gg($res[$i]['LINKED_OBJECT'].'.'.'AlarmOn');
+	$res[$i]['OBJ']=$res[$i]['TITLE'];
+	$res[$i]['ALARMTIME']=gg($res[$i]['TITLE'].'.AlarmTime');
+	$res[$i]['ALARMON']=gg($res[$i]['TITLE'].'.AlarmOn');
+	$days=str_split(gg($res[$i]['TITLE'].'.days'));
+	for($j=0;$j<7;$j++) {
+		$res[$i]['DAY_'.$j]=$days[$j];
+	}
+	$res[$i]['NAME']=getObject($res[$i]['TITLE'])->description;
    }
    $out['RESULT']=$res;
   }
+?>

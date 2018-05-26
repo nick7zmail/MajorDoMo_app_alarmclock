@@ -1,6 +1,6 @@
 <!-- table app_alarmclock search -->
 <p>
-<a href="?view_mode=edit_app_alarmclock" class="btn btn-default"> <#LANG_ADD#></a>
+<a href="?view_mode=edit_app_alarmclock" class="btn btn-default"><span class="glyphicon glyphicon-plus"></span> <#LANG_ADD#></a>
 </p>
 <table width=100% border=0><tr>
 <td valign=top>
@@ -25,13 +25,13 @@
 <table  align=center class="table table-striped">
 <tbody>
 <thead>
-<th>Имя</th><th>Вкл/выкл</th><th>Время</th><th>Дни недели</th><th>&nbsp;</th>
+<th><#LANG_NAME#></th><th><#LANG_ON#>/<#LANG_OFF#></th><th><#LANG_TIME#></th><th><#LANG_RUN_WEEKDAYS#></th><th>&nbsp;</th>
 </thead>
 [#begin RESULT#]
 <tr style="height:52px" class="hover_btn2">
  <td style="vertical-align:middle">
   <b>
-   [#TITLE#]
+   [#NAME#]
   </a></b>
  </td>
  <td style="vertical-align:middle">
@@ -81,8 +81,8 @@
  <td style="vertical-align:middle" width="1%" nowrap>
   <div style="width:120px">
   [#if "<#ACTION#>"=="admin"#]
-   <a href="?view_mode=edit_app_alarmclock&id=[#ID#]" class="btn btn-default" title="Edit"><i class="glyphicon glyphicon-pencil"></i></a>
-    <a href="?view_mode=delete_app_alarmclock&id=[#ID#]" onClick="return confirm('Are you sure? Please confirm.')" class="btn btn-default" title="Delete"><i class="glyphicon glyphicon-remove"></i></a>
+   <a href="?view_mode=edit_app_alarmclock&id=[#OBJ#]" class="btn btn-default" title="<#LANG_EDIT#>"><i class="glyphicon glyphicon-pencil"></i></a>
+   <a href="?view_mode=delete_app_alarmclock&id=[#OBJ#]" onClick="return confirm('<#LANG_STRING_DELETE_CONFIRM#>')" class="btn btn-danger" title="<#LANG_DELETE#>"><i class="glyphicon glyphicon-remove"></i></a>
   [#endif ACTION#]
   </div>
  </td>
@@ -90,6 +90,7 @@
 [#end RESULT#]
 </tbody>
 </table>
+<input type="hidden" name="obj" value="<#OBJ#>">
 <input type="hidden" name="data_source" value="<#DATA_SOURCE#>">
 <input type="hidden" name="view_mode" value="multiple_app_alarmclock">
 </form>

@@ -160,58 +160,88 @@ function usual(&$out) {
 * @access public
 */
  function delete_app_alarmclock($id) {
-  $rec=SQLSelectOne("SELECT * FROM app_alarmclock WHERE ID='$id'");
-  removeLinkedProperty($rec['LINKED_OBJECT'], 'AlarmOn', $this->name);
-  removeLinkedProperty($rec['LINKED_OBJECT'], 'AlarmTime', $this->name);
-  SQLExec("DELETE FROM app_alarmclock WHERE ID='".$rec['ID']."'");
+	removeLinkedProperty($id, 'AlarmOn', $this->name);
+	removeLinkedProperty($id, 'AlarmTime', $this->name);
+	deleteObject($id);
  }
  function propertySetHandle($object, $property, $value) {
-   $table='app_alarmclock';
-   $properties=SQLSelect("SELECT * FROM $table WHERE LINKED_OBJECT LIKE '".DBSafe($object)."'");
-    DebMes("AlarmClock: изменено свойство будильника $object.$property");
-   $total=count($properties);
-   if ($total) {
-    for($i=0;$i<$total;$i++) {
+    //DebMes("AlarmClock: изменено свойство будильника $object.$property");
+
      //to-do
-	 if (gg($properties[$i]['LINKED_OBJECT'].'.'.'AlarmOn') == 1 ) {
-		if (stripos($properties[$i]['CUSTOM_ON'], '%TIME%') !== false) {
-			$val=str_replace('%TIME%', gg($properties[$i]['LINKED_OBJECT'].'.'.'AlarmTime'), $properties[$i]['CUSTOM_ON']);
-		} else {$val=$properties[$i]['CUSTOM_ON'];}	
+	 if (gg($object.'.AlarmOn') == 1 ) {
+		if (stripos(gg($object.'.custom_on'), '%TIME%') !== false) {
+			$val=str_replace('%TIME%', gg($object.'.AlarmTime'), gg($object.'.custom_on'));
+		} else {$val=gg($object.'.custom_on');}	
 	 } else {
-		if (stripos($properties[$i]['CUSTOM_OFF'], '%TIME%') !== false) {
-			$val=str_replace('%TIME%', gg($properties[$i]['LINKED_OBJECT'].'.'.'AlarmTime'), $properties[$i]['CUSTOM_OFF']);
-		} else {$val=$properties[$i]['CUSTOM_OFF'];}
+		if (stripos(gg($object.'.custom_off'), '%TIME%') !== false) {
+			$val=str_replace('%TIME%', gg($object.'.AlarmTime'), gg($object.'.custom_off'));
+		} else {$val=gg($object.'.custom_off');}
 	 }
-	 sg($properties[$i]['LINKED_OBJECT'].'.'.'value', $val);
-    }
-   }
+	 sg($object.'.value', $val);
  }
  
+ function getNewObjectIndex() {
+    $objects=getObjectsByClass('AlarmClock');
+    $index=0;
+    $total = count($objects);
+    for ($i = 0; $i < $total; $i++) {
+        if (preg_match('/(\d+)/',$objects[$i]['TITLE'],$m)) {
+            $current_index=(int)$m[1];
+            if ($current_index>$index) {
+                $index=$current_index;
+            }
+        }
+    }
+    $index++;
+    if ($index<10) {
+        $index='0'.$index;
+    }
+    return $index;
+}
+ 
  function check_alarm() {
- $this->getConfig();
- $db_rec=SQLSelect("SELECT * FROM app_alarmclock");
-	 for ($i = 1; $i <= count($db_rec); $i++) {
-		$rec=$db_rec[$i-1];
-		if (gg($rec['LINKED_OBJECT'].'.AlarmTime') == date('H:i')) {
-		$dow='DAY_'.(date('N')-1);
-			if ($rec[$dow]==1) {
-				if (gg($rec['LINKED_OBJECT'].'.AlarmOn') == 1) {
-					DebMes("AlarmClock: сработал будильник ".$rec['TITLE']);
-					if ($rec['METHOD'] == 'sound') {
-						PlaySound($rec['CODE']);
-					} elseif ($rec['METHOD'] == 'method') {
-						cm($rec['LINKED_OBJECT'].'.'.$rec['LINKED_METHOD']);
+ $this->getConfig();	
+ $db_rec=getObjectsByClass('AlarmClock');
+	 for ($i = 0; $i < count($db_rec); $i++) {
+		$rec=$db_rec[$i];
+		if (gg($rec['TITLE'].'.AlarmTime') == date('H:i')) {
+		$days=str_split(gg($rec['TITLE'].'.days'));
+			if ($days[(date('N')-1)]==1) {
+				if (gg($rec['TITLE'].'.AlarmOn') == 1) {
+					//DebMes("AlarmClock: сработал будильник ".$rec['TITLE']);
+					$m=gg($rec['TITLE'].'.method');
+					if ($m == 'sound') {
+						PlaySound(gg($rec['TITLE'].'.code'));
+					} elseif ($m == 'method') {
+						cm(gg($rec['TITLE'].'.code'));
+					} elseif ($m == 'script'){
+						rs(gg($rec['TITLE'].'.code'));
 					} else {
-						runScript($rec['CODE']);
+						cm($m.'.AlarmRun');
 					}
-					if ($rec['ONCE'] == 1) {
-						sg($rec['LINKED_OBJECT'].'.AlarmOn', 0);
+					if (gg($rec['TITLE'].'.once') == 1) {
+						sg($rec['TITLE'].'.AlarmOn', 0);
 					}
 				}
 			}
 		}
 	 }
  }
+ 
+ function render_structure() {
+  require(DIR_MODULES.$this->name.'/app_alarmclock_structure.inc.php');
+ }
+ 
+ function render_prop($prop, $desc) {
+	$class_name='AlarmClock';
+	$prop_id=addClassProperty($class_name, $prop);
+	if ($prop_id) {
+		$prop=SQLSelectOne("SELECT * FROM properties WHERE ID=".$prop_id);
+		$prop['DESCRIPTION']=$desc;
+		SQLUpdate('properties',$prop);
+	}
+}
+
 /**
 * Install
 *
@@ -221,6 +251,7 @@ function usual(&$out) {
 */
  function install($data='') {
   parent::install();
+  $this->render_structure();
  }
 /**
 * Uninstall
@@ -230,7 +261,6 @@ function usual(&$out) {
 * @access public
 */
  function uninstall() {
-  SQLExec('DROP TABLE IF EXISTS app_alarmclock');
   parent::uninstall();
  }
 /**
@@ -240,30 +270,7 @@ function usual(&$out) {
 *
 * @access private
 */
- function dbInstall($data='') {
-/*
-app_alarmclock - 
-*/
-  $data = <<<EOD
- app_alarmclock: ID int(10) unsigned NOT NULL auto_increment
- app_alarmclock: TITLE varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: DAY_0 varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: DAY_1 varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: DAY_2 varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: DAY_3 varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: DAY_4 varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: DAY_5 varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: DAY_6 varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: CUSTOM_ON varchar(255) NOT NULL DEFAULT ''
- app_alarmclock: CUSTOM_OFF varchar(255) NOT NULL DEFAULT ''
- app_alarmclock: ONCE varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: LINKED_OBJECT varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: LINKED_METHOD varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: METHOD varchar(100) NOT NULL DEFAULT ''
- app_alarmclock: CODE varchar(100) NOT NULL DEFAULT ''
-EOD;
-  parent::dbInstall($data);
- }
+
 // --------------------------------------------------------------------
 }
 /*
@@ -271,3 +278,4 @@ EOD;
 * TW9kdWxlIGNyZWF0ZWQgSnVuIDIxLCAyMDE2IHVzaW5nIFNlcmdlIEouIHdpemFyZCAoQWN0aXZlVW5pdCBJbmMgd3d3LmFjdGl2ZXVuaXQuY29tKQ==
 *
 */
+?>
