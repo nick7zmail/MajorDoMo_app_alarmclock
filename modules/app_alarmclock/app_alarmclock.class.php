@@ -217,7 +217,7 @@ function usual(&$out) {
 					} elseif ($m == 'script'){
 						rs(gg($rec['TITLE'].'.code'));
 					} else {
-						cm($m.'.AlarmRun');
+						cm($rec['TITLE'].'.AlarmRun');
 					}
 					if (gg($rec['TITLE'].'.once') == 1) {
 						sg($rec['TITLE'].'.AlarmOn', 0);
